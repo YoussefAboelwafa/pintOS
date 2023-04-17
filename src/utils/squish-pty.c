@@ -16,6 +16,7 @@
 #include <termios.h>
 #include <unistd.h>
 
+
 static void
 fail_io (const char *msg, ...)
      __attribute__ ((noreturn))
