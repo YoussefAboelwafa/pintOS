@@ -20,6 +20,8 @@
 /* Number of timer ticks since OS booted. */
 static int64_t ticks;
 
+static struct list sleep_list;
+static struct semaphore sema;
 /* Number of loops per timer tick.
    Initialized by timer_calibrate(). */
 static unsigned loops_per_tick;
@@ -86,14 +88,22 @@ timer_elapsed (int64_t then)
 
 /* Sleeps for approximately TICKS timer ticks.  Interrupts must
    be turned on. */
+// thread_cmp(const struct list_elem *thread1, const struct list_elem *thread2, void *aux UNUSED) {
+//     return list_entry(thread1, struct thread, elem)->wakeup_time < list_entry(thread2, struct thread, elem)->wakeup_time;
+// }
+
 void
 timer_sleep (int64_t ticks) 
 {
-  int64_t start = timer_ticks ();
+  int64_t start = timer_ticks();
 
-  ASSERT (intr_get_level () == INTR_ON);
-  while (timer_elapsed (start) < ticks) 
-    thread_yield ();
+  ASSERT(intr_get_level() == INTR_ON);
+  if(ticks<=0){
+    return;
+  }
+  intr_disable();
+  thread_set_sleeping(ticks);
+  intr_set_level(INTR_ON);
 }
 
 /* Sleeps for approximately MS milliseconds.  Interrupts must be
@@ -170,8 +180,21 @@ timer_print_stats (void)
 static void
 timer_interrupt (struct intr_frame *args UNUSED)
 {
-  ticks++;
+  ticks++; 
   thread_tick ();
+  if (thread_mlfqs){
+    recent_inc();
+    if (ticks % 4 == 3){
+      // all_priority_calc();
+      thread_foreach(priority_clac,NULL);
+    }
+    if (ticks % TIMER_FREQ == 0){
+      load_avg_calc();
+      thread_foreach(recent_clac,NULL);
+      // priority_clac(thread_current());
+    }
+  }
+
 }
 
 /* Returns true if LOOPS iterations waits for more than one timer
