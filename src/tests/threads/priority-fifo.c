@@ -62,7 +62,6 @@ test_priority_fifo (void)
       d->op = &op;
       thread_create (name, PRI_DEFAULT + 1, simple_thread_func, d);
     }
-
   thread_set_priority (PRI_DEFAULT);
   /* All the other threads now run to termination here. */
   ASSERT (lock.holder == NULL);
@@ -87,8 +86,9 @@ static void
 simple_thread_func (void *data_) 
 {
   struct simple_thread_data *data = data_;
-  int i;
+  int i;  
   
+  // msg("i am thread %s running with priority %d",thread_current()->name,thread_current()->priority);
   for (i = 0; i < ITER_CNT; i++) 
     {
       lock_acquire (data->lock);

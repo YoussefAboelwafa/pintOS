@@ -14,11 +14,13 @@
    Greg Hutchins <gmh@leland.stanford.edu>, Yu Ping Hu
    <yph@cs.stanford.edu>.  Modified by arens. */
 
-#include <stdio.h>
+
 #include "tests/threads/tests.h"
 #include "threads/init.h"
 #include "threads/synch.h"
 #include "threads/thread.h"
+#include <stdio.h>
+
 
 static thread_func a_thread_func;
 static thread_func b_thread_func;
@@ -37,17 +39,23 @@ test_priority_donate_multiple2 (void)
 
   lock_init (&a);
   lock_init (&b);
-
+  // msg("locks held by %s is %d current priority is %d",thread_current()->name,list_size(&thread_current()->locks_held),thread_get_priority());
   lock_acquire (&a);
+  // msg("locks held by %s is %d current priority is %d",thread_current()->name,list_size(&thread_current()->locks_held),thread_get_priority());
   lock_acquire (&b);
+  // msg("locks held by %s is %d current priority is %d",thread_current()->name,list_size(&thread_current()->locks_held),thread_get_priority());
 
   thread_create ("a", PRI_DEFAULT + 3, a_thread_func, &a);
   msg ("Main thread should have priority %d.  Actual priority: %d.",
        PRI_DEFAULT + 3, thread_get_priority ());
-
+  
   thread_create ("c", PRI_DEFAULT + 1, c_thread_func, NULL);
-
+  // msg ("Main thread priority is %d",thread_get_priority ());
+  // msg("locks held by %s is %d current priority is %d",thread_current()->name,list_size(&thread_current()->locks_held),thread_get_priority());
   thread_create ("b", PRI_DEFAULT + 5, b_thread_func, &b);
+  // msg ("Main thread priority is %d",thread_get_priority ());
+  // msg("locks held by %s is %d current priority is %d",thread_current()->name,list_size(&thread_current()->locks_held),thread_get_priority());
+
   msg ("Main thread should have priority %d.  Actual priority: %d.",
        PRI_DEFAULT + 5, thread_get_priority ());
 
@@ -65,26 +73,33 @@ static void
 a_thread_func (void *lock_) 
 {
   struct lock *lock = lock_;
-
+  //  msg("thread held by %s is %d",thread_current()->name,list_size(&thread_current()->locks_held)); 
   lock_acquire (lock);
   msg ("Thread a acquired lock a.");
+    // msg("thread held by %s is %d",thread_current()->name,list_size(&thread_current()->locks_held));
   lock_release (lock);
   msg ("Thread a finished.");
+    // msg("thread held by %s is %d",thread_current()->name,list_size(&thread_current()->locks_held));
+
 }
 
 static void
 b_thread_func (void *lock_) 
 {
   struct lock *lock = lock_;
-
+    // msg("thread held by %s is %d",thread_current()->name,list_size(&thread_current()->locks_held));
   lock_acquire (lock);
   msg ("Thread b acquired lock b.");
+    // msg("thread held by %s is %d",thread_current()->name,list_size(&thread_current()->locks_held));
   lock_release (lock);
   msg ("Thread b finished.");
+    // msg("thread held by %s is %d",thread_current()->name,list_size(&thread_current()->locks_held));
+
 }
 
 static void
 c_thread_func (void *a_ UNUSED) 
 {
+  // msg("i entered c");
   msg ("Thread c finished.");
 }
