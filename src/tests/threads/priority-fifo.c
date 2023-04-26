@@ -70,7 +70,6 @@ test_priority_fifo (void)
   for (; output < op; output++) 
     {
       struct simple_thread_data *d;
-
       ASSERT (*output >= 0 && *output < THREAD_CNT);
       d = data + *output;
       if (cnt % THREAD_CNT == 0)
@@ -88,7 +87,6 @@ simple_thread_func (void *data_)
   struct simple_thread_data *data = data_;
   int i;  
   
-  // msg("i am thread %s running with priority %d",thread_current()->name,thread_current()->priority);
   for (i = 0; i < ITER_CNT; i++) 
     {
       lock_acquire (data->lock);
@@ -96,4 +94,5 @@ simple_thread_func (void *data_)
       lock_release (data->lock);
       thread_yield ();
     }
+ 
 }

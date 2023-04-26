@@ -4,6 +4,7 @@
 #include <debug.h>
 #include <list.h>
 #include <stdint.h>
+#include "threads/fixed_point.h"
 
 /* States in a thread's life cycle. */
 enum thread_status
@@ -13,11 +14,6 @@ enum thread_status
    THREAD_BLOCKED, /* Waiting for an event to trigger. */
    THREAD_DYING    /* About to be destroyed. */
 };
-
-typedef struct
-{
-   int value;
-} real;
 
 
 /* Thread identifier type.
@@ -94,14 +90,14 @@ struct thread
    enum thread_status status;         /* Thread state. */
    char name[16];                     /* Name (for debugging purposes). */
    uint8_t *stack;                    /* Saved stack pointer. */
-   int priority;                      /* Priority. */
    int64_t remaining_time_to_wake_up; /* Ticks remaining from waking up. */
-   int real_priority;
-   struct list locks_held;
-   struct lock *locked_by;
+   int priority;                      /* Priority. */
+   int real_priority;                 // stores the real (original) priority of the thread
+   struct list locks_held;            // the list occupies the locks held by the thread
+   struct lock *locked_by;            // it points to the lock which the thread is currently waiting for
 
-   int nice;
-   real recent_cpu;
+   int nice;                          //thread nice value
+   real recent_cpu;                   // CPU ticks while thread is holding the CPU
 
    struct list_elem sleepingelem; 
    struct list_elem allelem;          /* List element for all threads list. */
@@ -170,21 +166,6 @@ void load_avg_calc(void);
 void all_priority_calc(void);
 void recent_clac(struct thread *t, void *aux UNUSED);
 void priority_clac(struct thread *t, void *aux UNUSED);
-
-real real_from_int(int value);
-real sub_real(real a, real b);
-real mul_real(real a, real b);
-real div_real(real a, real b);
-real add_real(real a, real b);
-
-real add_int(real a, int b);
-real sub_int(real a, int b);
-real mul_int(real a, int b);
-real div_int(real a, int b);
-
-int int_round(real a);
-int int_floor(real a);
-int int_ceil(real a);
 
 
 #endif /* threads/thread.h */
