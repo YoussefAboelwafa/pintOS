@@ -178,6 +178,8 @@ void process_exit(void)
 
   struct list *process_files = &thread_current()->user_files;
 
+  //release all resources
+
   // Free all open files
   for (struct list_elem *iter = list_begin(process_files);
        iter != list_end(process_files);)
