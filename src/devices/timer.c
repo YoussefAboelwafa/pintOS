@@ -88,7 +88,6 @@ void timer_sleep(int64_t ticks)
 {
   
   int64_t start = timer_ticks();
-
   ASSERT(intr_get_level() == INTR_ON);
   if(ticks<=0){
     return;
@@ -165,19 +164,6 @@ timer_interrupt (struct intr_frame *args UNUSED)
 {
   ticks++; 
   thread_tick ();
-  if (thread_mlfqs){
-    recent_inc();
-    if (ticks % 4 == 3){
-      // all_priority_calc();
-      thread_foreach(priority_clac,NULL);
-    }
-    if (ticks % TIMER_FREQ == 0){
-      load_avg_calc();
-      thread_foreach(recent_clac,NULL);
-      // priority_clac(thread_current());
-    }
-  }
-
 }
 
 /* Returns true if LOOPS iterations waits for more than one timer

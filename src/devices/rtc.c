@@ -1,5 +1,4 @@
 #include "devices/rtc.h"
-#include <round.h>
 #include <stdio.h>
 #include "threads/io.h"
 
@@ -83,10 +82,10 @@ rtc_get_time (void)
   year -= 70;
 
   /* Break down all components into seconds. */
-  time = (year * 365 + DIV_ROUND_UP (year - 2, 4)) * 24 * 60 * 60;
-  for (i = 1; i < mon; i++)
+  time = (year * 365 + (year - 1) / 4) * 24 * 60 * 60;
+  for (i = 1; i <= mon; i++)
     time += days_per_month[i - 1] * 24 * 60 * 60;
-  if (mon > 2 && year % 4 == 2)
+  if (mon > 2 && year % 4 == 0)
     time += 24 * 60 * 60;
   time += (mday - 1) * 24 * 60 * 60;
   time += hour * 60 * 60;
